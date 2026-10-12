@@ -41,7 +41,7 @@ export function ScanBar() {
               type="text"
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
-              placeholder="https://github.com/username/repository (Public Repositories)"
+              placeholder="Enter a public GitHub repository URL..."
               disabled={isLoading}
               className="w-full pl-10 pr-24 py-2.5 bg-background/90 border border-surface-border rounded-xl text-sm text-slate-100 placeholder-slate-500 font-mono focus:outline-none focus:ring-2 focus:ring-emergency-flame/50 focus:border-emergency-flame transition-all"
             />

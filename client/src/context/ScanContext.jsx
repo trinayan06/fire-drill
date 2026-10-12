@@ -37,13 +37,12 @@ export function ScanProvider({ children }) {
     };
   };
 
-  // Fetch presets on load
+  // Fetch presets on load (without auto-starting a demo scan)
   useEffect(() => {
     apiFetch('/api/presets')
       .then(data => {
         if (data.presets) {
           setPresets(data.presets);
-          loadPresetScan('quickbite-food-app');
         }
       })
       .catch(err => console.warn('Could not load presets:', err.message));
