@@ -3,6 +3,10 @@ import confetti from 'canvas-confetti';
 
 const ScanContext = createContext(null);
 
+// Environment-based API URL: uses VITE_API_URL in production, empty (Vite dev proxy) in local dev
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const apiUrl = (path) => `${API_BASE_URL}${path}`;
+
 export function ScanProvider({ children }) {
   const [activeScan, setActiveScan] = useState(null);
   const [previousScan, setPreviousScan] = useState(null);
@@ -38,7 +42,7 @@ export function ScanProvider({ children }) {
 
   // Fetch presets on load
   useEffect(() => {
-    fetch('/api/presets')
+    fetch(apiUrl('/api/presets'))
       .then(res => res.json())
       .then(data => {
         if (data.presets) {
@@ -67,7 +71,7 @@ export function ScanProvider({ children }) {
       setTimeout(() => setScanStage('analyzing_rules'), 500);
       setTimeout(() => setScanStage('synthesizing_prompt'), 750);
 
-      const res = await fetch('/api/scan', {
+      const res = await fetch(apiUrl('/api/scan'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ presetId })
@@ -114,7 +118,7 @@ export function ScanProvider({ children }) {
         });
       }, 700);
 
-      const res = await fetch('/api/scan', {
+      const res = await fetch(apiUrl('/api/scan'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repoUrl })
@@ -152,7 +156,7 @@ export function ScanProvider({ children }) {
     setScanStage('fetching_tree');
 
     try {
-      const res = await fetch('/api/rescan', {
+      const res = await fetch(apiUrl('/api/rescan'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -214,7 +218,7 @@ export function ScanProvider({ children }) {
     setIsAssistantThinking(true);
 
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch(apiUrl('/api/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -266,7 +270,7 @@ export function ScanProvider({ children }) {
     if (!activeScan) return;
 
     try {
-      const res = await fetch('/api/generate-prompt', {
+      const res = await fetch(apiUrl('/api/generate-prompt'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
