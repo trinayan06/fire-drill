@@ -1,11 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
+import { apiFetch, API_BASE_URL } from '../config/api.js';
 
 const ScanContext = createContext(null);
-
-// Environment-based API URL: uses VITE_API_URL in production, empty (Vite dev proxy) in local dev
-const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-const apiUrl = (path) => `${API_BASE_URL}${path}`;
 
 export function ScanProvider({ children }) {
   const [activeScan, setActiveScan] = useState(null);
@@ -42,15 +39,14 @@ export function ScanProvider({ children }) {
 
   // Fetch presets on load
   useEffect(() => {
-    fetch(apiUrl('/api/presets'))
-      .then(res => res.json())
+    apiFetch('/api/presets')
       .then(data => {
         if (data.presets) {
           setPresets(data.presets);
           loadPresetScan('quickbite-food-app');
         }
       })
-      .catch(err => console.warn('Could not load presets:', err));
+      .catch(err => console.warn('Could not load presets:', err.message));
   }, []);
 
   const showToast = (message, type = 'info') => {
@@ -71,14 +67,10 @@ export function ScanProvider({ children }) {
       setTimeout(() => setScanStage('analyzing_rules'), 500);
       setTimeout(() => setScanStage('synthesizing_prompt'), 750);
 
-      const res = await fetch(apiUrl('/api/scan'), {
+      const data = await apiFetch('/api/scan', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ presetId })
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to load demo scan');
 
       setTimeout(() => {
         setActiveScan(data.scan);
@@ -118,18 +110,12 @@ export function ScanProvider({ children }) {
         });
       }, 700);
 
-      const res = await fetch(apiUrl('/api/scan'), {
+      const data = await apiFetch('/api/scan', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repoUrl })
       });
 
       clearInterval(stepInterval);
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Scan failed.');
-      }
 
       setActiveScan(data.scan);
       if (data.scan.issues?.length > 0) {
@@ -156,17 +142,13 @@ export function ScanProvider({ children }) {
     setScanStage('fetching_tree');
 
     try {
-      const res = await fetch(apiUrl('/api/rescan'), {
+      const data = await apiFetch('/api/rescan', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           previousScanId: activeScan.scanId,
           repoUrl: activeScan.repo?.url
         })
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Re-scan failed.');
 
       setPreviousScan(data.previousScan);
       setActiveScan(data.currentScan);
@@ -218,9 +200,8 @@ export function ScanProvider({ children }) {
     setIsAssistantThinking(true);
 
     try {
-      const res = await fetch(apiUrl('/api/chat'), {
+      const data = await apiFetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           scanId: activeScan.scanId,
           message: text.trim(),
@@ -228,9 +209,6 @@ export function ScanProvider({ children }) {
           scan: activeScan
         })
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to get assistant response.');
 
       const assistantMsg = {
         id: `ast_${Date.now()}`,
@@ -270,15 +248,13 @@ export function ScanProvider({ children }) {
     if (!activeScan) return;
 
     try {
-      const res = await fetch(apiUrl('/api/generate-prompt'), {
+      const data = await apiFetch('/api/generate-prompt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           scanId: activeScan.scanId,
           agent
         })
       });
-      const data = await res.json();
       if (data.masterPrompt) {
         setActiveScan(prev => ({ ...prev, masterFixPrompt: data.masterPrompt }));
         showToast(`Master Fix Prompt formatted for ${agent.toUpperCase()}`, 'info');
