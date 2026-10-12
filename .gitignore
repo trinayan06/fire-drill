@@ -1,0 +1,44 @@
+# Environment files & secrets
+.env
+.env.*
+*.env
+*.env.local
+*.env.production
+*.env.development
+**/.env
+**/.env.*
+**/*.env
+server/.env
+server/.env.local
+client/.env
+client/.env.local
+client/src/.env
+
+# Always allow .env.example
+!.env.example
+!**/.env.example
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Production builds & artifacts
+dist/
+build/
+.output/
+coverage/
+
+# Caches & temporary runtimes
+.cache/
+.vite/
+.firedrill_store.json
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System & IDE files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

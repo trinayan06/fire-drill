@@ -1,0 +1,22 @@
+{
+  "name": "fire-drill",
+  "version": "1.0.0",
+  "description": "FIRE DRILL — AI Code Reliability Simulator. Scan. Understand. Prompt. Fix. Verify.",
+  "scripts": {
+    "server": "node server/index.js",
+    "client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "dev": "node -e \"console.log('Use concurrently or run server and client in separate terminals')\"",
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install"
+  },
+  "keywords": [
+    "ai-agent",
+    "reliability",
+    "code-audit",
+    "antigravity",
+    "cursor",
+    "claude-code"
+  ],
+  "author": "Fire Drill Team",
+  "license": "MIT"
+}
